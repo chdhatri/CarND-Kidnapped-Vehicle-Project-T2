@@ -23,6 +23,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// TODO: Set the number of particles. Initialize all particles to first position (based on estimates of 
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
+    
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
     if(is_initialized) {
         return;
@@ -59,6 +60,41 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 	// NOTE: When adding noise you may find std::normal_distribution and std::default_random_engine useful.
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
 	//  http://www.cplusplus.com/reference/random/default_random_engine/
+    
+    //
+    std_x = std_pos[0];
+    std_y = std_pos[1];
+    std_theta = std_pos[2];
+    
+    // creates a normal (Gaussian) distribution for x  y and theta.
+    normal_distribution<double> dist_x(0, std_x);
+    normal_distribution<double> dist_y(0, std_y);
+    normal_distribution<double> dist_theta(0, std_theta);
+    
+    //Add measurements to each particle and add random Gaussian noise.
+    for(int i=0; i<num_particles;i++) {
+        
+        double theta = particles[i].theta;
+        
+        if(fabs(yaw_rate) < EPS){
+            particles[i].x += velocity * delta_t * cos( theta );
+            particles[i].y += velocity * delta_t * sin( theta );
+            
+        } else {
+            
+            particles.x += velocity/yaw_rate * (sin(theta + yaw_rate * delta_t) - sin(theta));
+            particles.y += velocity/yaw_rate * (cos(theta) - cos(theta + yaw_rate * delta_t));
+            
+        }
+        
+        //Adding Gaussian sensor noise.
+        
+        particles.x += dist_x(gen);
+        particles.y += dist_y(gen);
+        particles.theta += dist_theta(gen);
+    }
+   
+
 
 }
 
@@ -67,6 +103,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   observed measurement to this particular landmark.
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
+    
 
 }
 
