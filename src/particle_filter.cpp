@@ -24,6 +24,33 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
+    if(is_initialized) {
+        return;
+    }
+    num_particles = 100;
+    
+    //Set standard deviations for x, y, and theta.
+    std_x = std[0];
+    std_y = std[1];
+    std_theta = std[2];
+    
+    // creates a normal (Gaussian) distribution for x  y and theta.
+    normal_distribution<double> dist_x(x, std_x);
+    normal_distribution<double> dist_y(y, std_y);
+    normal_distribution<double> dist_theta(theta, std_theta);
+    
+    for (int i = 0; i < num_particles; ++i) {
+        Particle particle;
+        
+        particle.id = 1;
+        particle.x = dist_x(gen);
+        particle.y = dist_y(gen);
+        particle.theta = dist_theta(gen);
+        particle.weight = 1;
+        
+        particles.push_back(particle);
+    }
+    is_initialized = true;
 
 }
 
