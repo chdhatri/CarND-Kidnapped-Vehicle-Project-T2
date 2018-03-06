@@ -121,7 +121,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
             double xDiff = observations[i].x - predicted[j].x;
             double yDiff = observations[i].y - predicted[j].y;
             
-            double distance = xDiff * xDiff + yDiff * yDiff;
+            double distance = sqrt(xDiff * xDiff + yDiff * yDiff);
             
            
             if ( distance < minDist ) {
@@ -178,10 +178,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
             transformedObservations.push_back(LandmarkObs{ observations[k].id, xx, yy });
         }
         
-        // Observation association to landmark.
+        //  associate observations to landmark.
         dataAssociation(inRangeLandmarks, transformedObservations);
         
-        // Reseting weight.
+        
         particles[i].weight = 1.0;
         // Calculate weights.
         for(int j = 0; j < transformedObservations.size(); j++) {
@@ -235,7 +235,7 @@ void ParticleFilter::resample() {
         }
     }
     
-    // Creating distributions.
+    // Creating uniform distributions.
     uniform_real_distribution<double> distDouble(0.0, maxWeight);
     uniform_int_distribution<int> distInt(0, num_particles - 1);
     
